@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UI;
-using UI.JSONCreation;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 namespace UI {
     namespace JSONCreation {
-        public class EditProblemOnPress : MonoBehaviour, IPointerClickHandler {
+        public class EditExplanationOnPress : MonoBehaviour, IPointerClickHandler {
             [SerializeField] private GameObject _editTextPopupPrefab;
             [Header("Scripts")]
             [SerializeField] private QuestionUpdater _questionUpdater;
@@ -15,8 +12,11 @@ namespace UI {
             [SerializeField] private Transform _parent;
             public void OnPointerClick(PointerEventData eventData) {
                 var etp = Instantiate(_editTextPopupPrefab, _parent.position, Quaternion.identity, _parent);
-                etp.GetComponent<EditTextPopup>().OnSavePress.AddListener(delegate { _questionUpdater.ChangeProblemText(); });
-                etp.GetComponent<EditTextPopup>().OnSavePress.AddListener(delegate { _questionVisualizer.VisualizePickedQuestion(); });
+                etp.GetComponent<EditTextPopup>().OnSavePress.AddListener(_questionUpdater.ChangeExplanationText);
+                etp.GetComponent<EditTextPopup>().OnSavePress.AddListener(UpdateText);
+            }
+            public void UpdateText() {
+                gameObject.GetComponentInChildren<TextMeshProUGUI>().text = $"Explanation {_questionUpdater.Index + 1}: {_questionVisualizer.PickedQuestion.Solutions[_questionUpdater.Index].Explanation}";
             }
         }
     }

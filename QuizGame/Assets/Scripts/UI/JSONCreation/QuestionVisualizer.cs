@@ -19,9 +19,6 @@ namespace UI {
             private void Start() {
                 _questionCreator = GetComponent<QuestionCreator>();
                 CreateQuestion();
-                CreateQuestion();
-                CreateQuestion();
-                CreateQuestion();
                 VisualizeQuestions();
                 _pickedQuestion = _questionCreator.Questions[0];
                 VisualizePickedQuestion();
