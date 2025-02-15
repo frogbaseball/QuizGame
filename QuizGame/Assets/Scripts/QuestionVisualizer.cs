@@ -47,10 +47,10 @@ namespace UI {
             }
             private void CreateQuestion() {
                 var solutions = new Solution[] {
-                    new Solution("A", true, "the letter 'a' is the first letter of the english alphabet."),
-                    new Solution("B", false, "the letter 'b' is the second letter of the english alphabet."),
-                    new Solution("C", false, "the letter 'c' is the third letter of the english alphabet."),
-                    new Solution("D", false, "the letter 'd' is the fourth letter of the english alphabet.")
+                    new Solution("A", true, "the letter 'a' is the first letter of the alphabet."),
+                    new Solution("B", false, "the letter 'b' is the second letter of the alphabet."),
+                    new Solution("C", false, "the letter 'c' is the third letter of the alphabet."),
+                    new Solution("D", false, "the letter 'd' is the fourth letter of the alphabet.")
                 };
                 _questionCreator.CreateQuestion($"Question {_questionCreator.Questions.Count + 1}", "What is the first letter of the alphabet?", solutions);
                 VisualizeQuestions();

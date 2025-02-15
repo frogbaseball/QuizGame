@@ -1,46 +1,96 @@
 using QuestionManagement;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 namespace UI {
     namespace JSONPlay {
         public class QuestionMover : MonoBehaviour {
             [Header("Scripts")]
-            [SerializeField] private JSONQuestionLoader jsonQuestionLoader;
-            [SerializeField] private FinalScore finalScore;
+            [SerializeField] private JSONQuestionLoader _jsonQuestionLoader;
+            [SerializeField] private FinalScore _finalScore;
             [Header("Components")]
-            [SerializeField] private GameObject[] solutions;
-            [SerializeField] private TextMeshProUGUI problemText;
+            [SerializeField] private GameObject[] _solutions;
+            [SerializeField] private TextMeshProUGUI _problemText;
+            [SerializeField] private TextMeshProUGUI _explanationText;
+            [SerializeField] private Button _nextButton;
             [Header("For End Game")]
-            [SerializeField] private Transform toTurnOff;
-            [SerializeField] private Transform toTurnOn;
-            private int[] pickedSolutionsInOrder;
-            private int currentQuestionIndex = 0;
-            public int[] PickedSolutionsInOrder { get {  return pickedSolutionsInOrder; } }
+            [SerializeField] private Transform _toTurnOff;
+            [SerializeField] private Transform _toTurnOn;
+            [Header("Colors")]
+            [SerializeField] private Color _defaultColor;
+            [SerializeField] private Color _pickedColor;
+            [SerializeField] private Color _notPickedColor;
+            private int[] _pickedSolutionsInOrder;
+            private int _currentQuestionIndex = 0;
+            private bool _hasAlreadyPickedAnAnswerOnCurrentQuestion = false;
+            public int[] PickedSolutionsInOrder { get {  return _pickedSolutionsInOrder; } }
             private void Start() {
-                pickedSolutionsInOrder = new int[jsonQuestionLoader.Questions.Count];
+                _pickedSolutionsInOrder = new int[_jsonQuestionLoader.Questions.Count];
                 VisualizeQuestion();
             }
             public void OnSolutionButtonPress(int btnNumber) {
-                pickedSolutionsInOrder[currentQuestionIndex] = btnNumber;
-                if (currentQuestionIndex + 1 > jsonQuestionLoader.Questions.Count - 1) {
-                    EndGame();
+                if (_hasAlreadyPickedAnAnswerOnCurrentQuestion)
                     return;
-                }               
-                MoveToNextQuestion();
+                _pickedSolutionsInOrder[_currentQuestionIndex] = btnNumber;
+                _hasAlreadyPickedAnAnswerOnCurrentQuestion = true;
+                ShowNextButton();
+                ShowAnswersAndExplanation();
             }
             private void MoveToNextQuestion() {
-                currentQuestionIndex++;
+                _currentQuestionIndex++;
                 VisualizeQuestion();
             }
             private void EndGame() {
-                toTurnOff.gameObject.SetActive(false);
-                toTurnOn.gameObject.SetActive(true);
-                finalScore.UpdateScore();
+                _toTurnOff.gameObject.SetActive(false);
+                _toTurnOn.gameObject.SetActive(true);
+                _finalScore.UpdateText();
+            }
+            private void ShowNextButton() {
+                _nextButton.gameObject.SetActive(true);
+            }
+            private void HideNextButton() {
+                _nextButton.gameObject.SetActive(false);
+            }
+            private void ShowExplanation() {
+                _explanationText.gameObject.SetActive(true);
+            }
+            private void HideExplanation() {
+                _explanationText.gameObject.SetActive(false);
+            }
+            public void OnNextButtonPress() {
+                _hasAlreadyPickedAnAnswerOnCurrentQuestion = false;
+                if (_currentQuestionIndex + 1 > _jsonQuestionLoader.Questions.Count - 1) {
+                    EndGame();
+                    return;
+                }
+                MoveToNextQuestion();
+                HideNextButton();
+                HideAnswersAndExplanation();
+            }
+            private void ShowAnswersAndExplanation() {
+                ShowExplanation();
+                _explanationText.text = _jsonQuestionLoader.Questions[_currentQuestionIndex].Solutions[_pickedSolutionsInOrder[_currentQuestionIndex]].Explanation;
+                for (int i = 0; i < _solutions.Length; i++) {
+                    _solutions[i].GetComponent<Outline>().enabled = true;
+                    _solutions[i].GetComponent<Outline>().effectColor = _jsonQuestionLoader.Questions[_currentQuestionIndex].Solutions[i].IsCorrect ? Color.green : Color.red;
+                    if (i != _pickedSolutionsInOrder[_currentQuestionIndex]) {
+                        _solutions[i].GetComponentInChildren<Image>().color = _notPickedColor;
+                    } else {
+                        _solutions[i].GetComponentInChildren<Image>().color = _pickedColor;
+                    }
+                }
+            }
+            private void HideAnswersAndExplanation() {
+                HideExplanation();
+                for (int i = 0; i < _solutions.Length; i++) {
+                    _solutions[i].GetComponent<Outline>().enabled = false;
+                    _solutions[i].GetComponent<Image>().color = _defaultColor;
+                }
             }
             private void VisualizeQuestion() {
-                problemText.text = $"{jsonQuestionLoader.Questions[currentQuestionIndex].Name} \n\n {jsonQuestionLoader.Questions[currentQuestionIndex].Problem}";
-                for (int i = 0; i < solutions.Length; i++) {
-                    solutions[i].GetComponentInChildren<TextMeshProUGUI>().text = jsonQuestionLoader.Questions[currentQuestionIndex].Solutions[i].SolutionText;
+                _problemText.text = $"{_jsonQuestionLoader.Questions[_currentQuestionIndex].Name} \n\n {_jsonQuestionLoader.Questions[_currentQuestionIndex].Problem}";
+                for (int i = 0; i < _solutions.Length; i++) {
+                    _solutions[i].GetComponentInChildren<TextMeshProUGUI>().text = _jsonQuestionLoader.Questions[_currentQuestionIndex].Solutions[i].SolutionText;
                 }
             }
         }
